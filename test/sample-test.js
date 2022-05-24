@@ -1,6 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
+const depositAmount = 50000;
+const withdrawAmount = 25000;
+const mintAmount = 1000000;
+
 describe("TokenERC", function () {
 
   it("Deploy", async function () {
@@ -14,11 +18,11 @@ describe("TokenERC", function () {
     const TokenERC = await ethers.getContractFactory("ERC20");
     const tokenERC = await TokenERC.deploy("Test", "TEST");
 
-    const setMintTx = await tokenERC.Mint(signer.address, 1000000);
+    const setMintTx = await tokenERC.Mint(signer.address, mintAmount);
     await setMintTx.wait();
 
     const signerBalance = await tokenERC.balanceOf(signer.address);
-    expect(signerBalance).to.equal(1000000);
+    expect(signerBalance).to.equal(mintAmount);
   });
 });
 
@@ -62,14 +66,12 @@ describe("TokenWallet", function () {
       const TokenERC = await ethers.getContractFactory("ERC20");
       const tokenERC = await TokenERC.deploy("Test", "TEST");
 
-      const setMintTx = await tokenERC.Mint(signer.address, 1000000);
+      const setMintTx = await tokenERC.Mint(signer.address, mintAmount);
       await setMintTx.wait();
 
       const TokenWallet = await ethers.getContractFactory("TokenWallet");
       const tokenWallet = await TokenWallet.deploy(tokenERC.address);
       await tokenWallet.deployed();
-
-      const depositAmount = 50000;
 
       await expect(tokenWallet.connect(signer).Deposit(depositAmount))
         .to.be.revertedWith('You need to give an allowance to this contract');
@@ -84,8 +86,6 @@ describe("TokenWallet", function () {
       const TokenWallet = await ethers.getContractFactory("TokenWallet");
       const tokenWallet = await TokenWallet.deploy(tokenERC.address);
       await tokenWallet.deployed();
-      
-      const depositAmount = 50000;
 
       const allowSend = await tokenERC.connect(signer).approve(tokenWallet.address, depositAmount);
       await allowSend.wait();
@@ -101,14 +101,12 @@ describe("TokenWallet", function () {
       const TokenERC = await ethers.getContractFactory("ERC20");
       const tokenERC = await TokenERC.deploy("Test", "TEST");
 
-      const setMintTx = await tokenERC.Mint(signer.address, 1000000);
+      const setMintTx = await tokenERC.Mint(signer.address, mintAmount);
       await setMintTx.wait();
 
       const TokenWallet = await ethers.getContractFactory("TokenWallet");
       const tokenWallet = await TokenWallet.deploy(tokenERC.address);
       await tokenWallet.deployed();
-
-      const depositAmount = 50000;
 
       const allowSend = await tokenERC.approve(tokenWallet.address, depositAmount);
       await allowSend.wait();
@@ -127,14 +125,12 @@ describe("TokenWallet", function () {
       const TokenERC = await ethers.getContractFactory("ERC20");
       const tokenERC = await TokenERC.deploy("Test", "TEST");
 
-      const setMintTx = await tokenERC.Mint(signer.address, 1000000);
+      const setMintTx = await tokenERC.Mint(signer.address, mintAmount);
       await setMintTx.wait();
 
       const TokenWallet = await ethers.getContractFactory("TokenWallet");
       const tokenWallet = await TokenWallet.deploy(tokenERC.address);
       await tokenWallet.deployed();
-
-      const withdrawAmount = 25000;
 
       await expect(tokenWallet.connect(signer).Withdraw(withdrawAmount))
       .to.be.revertedWith('Smart contract have not enougth tokens on balance');
@@ -146,16 +142,12 @@ describe("TokenWallet", function () {
       const TokenERC = await ethers.getContractFactory("ERC20");
       const tokenERC = await TokenERC.deploy("Test", "TEST");
 
-      const setMintTx = await tokenERC.Mint(signer.address, 1000000);
+      const setMintTx = await tokenERC.Mint(signer.address, mintAmount);
       await setMintTx.wait();
 
       const TokenWallet = await ethers.getContractFactory("TokenWallet");
       const tokenWallet = await TokenWallet.deploy(tokenERC.address);
       await tokenWallet.deployed();
-
-      const depositAmount = 50000;
-
-      const withdrawAmount = 25000;
 
       const allowSend = await tokenERC.approve(tokenWallet.address, depositAmount);
       await allowSend.wait();
@@ -168,6 +160,9 @@ describe("TokenWallet", function () {
 
       const tokenWalletBalance = await tokenWallet.GetTokenBalance();
       expect(tokenWalletBalance).to.equal(withdrawAmount);
+
+      const signerBalance = await tokenERC.balanceOf(signer.address);
+      expect(signerBalance).to.equal(mintAmount - withdrawAmount);
     });
   });
 });
