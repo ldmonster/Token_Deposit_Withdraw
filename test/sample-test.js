@@ -117,6 +117,9 @@ describe("TokenWallet", function () {
 
       const tokenWalletBalance = await tokenWallet.GetTokenBalance();
       expect(tokenWalletBalance).to.equal(depositAmount);
+
+      const signerBalance = await tokenERC.balanceOf(signer.address);
+      expect(signerBalance).to.equal(mintAmount - depositAmount);
     });
 
     it("Withdraw token error not enougth tokens", async function () {
@@ -162,7 +165,7 @@ describe("TokenWallet", function () {
       expect(tokenWalletBalance).to.equal(withdrawAmount);
 
       const signerBalance = await tokenERC.balanceOf(signer.address);
-      expect(signerBalance).to.equal(mintAmount - withdrawAmount);
+      expect(signerBalance).to.equal(mintAmount - depositAmount + withdrawAmount);
     });
   });
 });
